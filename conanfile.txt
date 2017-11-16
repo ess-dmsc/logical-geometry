@@ -1,0 +1,14 @@
+[requires]
+gtest/3121b20-dm1@ess-dmsc/testing
+
+[generators]
+cmake
+
+[options]
+gtest:shared=True
+
+[imports]
+bin, *.dll -> ./bin
+lib, *.dll -> ./bin
+lib, *.so.* -> ./bin
+lib, *.so -> ./bin

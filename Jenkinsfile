@@ -45,6 +45,20 @@ def Object container_name(image_key) {
     return "${base_container_name}-${image_key}"
 }
 
+def docker_dependencies(image_key) {
+    def conan_remote = "ess-dmsc-local"
+    def custom_sh = images[image_key]['sh']
+    sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+        mkdir build
+        cd build
+        conan --version
+        conan remote add \
+            --insert 0 \
+            ${conan_remote} ${local_conan_server}
+        conan install ../${project} --build=missing
+    \""""
+}
+
 def docker_cmake(image_key) {
     cmake_exec = images[image_key]['cmake']
     def custom_sh = images[image_key]['sh']
