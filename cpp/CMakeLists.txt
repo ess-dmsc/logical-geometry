@@ -19,6 +19,7 @@ if (EXISTS ${PROJECT_BINARY_DIR}/conanbuildinfo.cmake)
   conan_basic_setup()
 endif ()
 
+include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
 include(${EXTRA_MODULES_DIR}/FindGTestFix.cmake)
 include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 
