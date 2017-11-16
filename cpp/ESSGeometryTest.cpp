@@ -1,7 +1,7 @@
 /** Copyright (C) 2016, 2017 European Spallation Source ERIC */
 
-#include <common/ESSGeometry.h>
-#include <test/TestBase.h>
+#include <ESSGeometry.h>
+#include "TestBase.h"
 
 class ESSGeometryTest : public TestBase {};
 

@@ -1,0 +1,11 @@
+/build/
+/cmake-build-*/
+.idea/
+*.user
+
+*.swp
+/.project
+/.cproject
+.cproject
+.settings
+.project
