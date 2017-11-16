@@ -138,7 +138,6 @@ def get_pipeline(image_key)
     }
 }
 
-/*
 node('docker && dmbuild03.dm.esss.dk') {
 
     // Delete workspace when build is done
@@ -160,13 +159,14 @@ node('docker && dmbuild03.dm.esss.dk') {
     builders['fedora'] = get_pipeline('fedora')
     builders['ubuntu1604'] = get_pipeline('ubuntu1604')
 
+/*
     for (x in images.keySet()) {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
     }
+    */
     parallel builders
 }
-*/
 
 node ("fedora") {
     // Delete workspace when build is done
