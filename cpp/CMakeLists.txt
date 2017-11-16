@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(h5cpp
+project(logicl_geometry
   LANGUAGES CXX C
   VERSION 0.0.1
   )
@@ -50,5 +50,5 @@ create_coverage_targets(
   generate_coverage
   run_tests
   ${PROJECT_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}/src
+  ${PROJECT_SOURCE_DIR}/cpp
   ${PROJECT_BINARY_DIR}/coverage)
