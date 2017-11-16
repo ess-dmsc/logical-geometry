@@ -172,14 +172,14 @@ node('docker && dmbuild03.dm.esss.dk') {
     //builders['centos-gcc6'] = get_pipeline('centos-gcc6')
     //builders['fedora'] = get_pipeline('fedora')
     //builders['ubuntu1604'] = get_pipeline('ubuntu1604')
-    builders['ubuntu1710'] = get_pipeline('ubuntu1710')
+    //builders['ubuntu1710'] = get_pipeline('ubuntu1710')
 
-/*
+
     for (x in images.keySet()) {
         def image_key = x
         builders[image_key] = get_pipeline(image_key)
     }
-    */
+
     parallel builders
 }
 
