@@ -190,13 +190,13 @@ node ("fedora") {
 
             try {
                 sh "make generate_coverage"
-                junit 'test/unit_tests_run.xml'
+                junit 'cpp/unit_tests_run.xml'
                 //sh "make memcheck"
                 step([
                     $class: 'CoberturaPublisher',
                     autoUpdateHealth: true,
                     autoUpdateStability: true,
-                    coberturaReportFile: 'coverage/coverage.xml',
+                    coberturaReportFile: 'cpp/coverage/coverage.xml',
                     failUnhealthy: false,
                     failUnstable: false,
                     maxNumberOfBuilds: 0,
@@ -206,7 +206,7 @@ node ("fedora") {
                 ])
             } catch (e) {
                 failure_function(e, 'Generate docs / generate coverage failed')
-                junit 'test/unit_tests_run.xml'
+                junit 'cpp/unit_tests_run.xml'
             }
         }
     }
