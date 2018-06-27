@@ -1,29 +1,14 @@
 project = "logical_geometry"
 
 images = [
-    'centos': [
-        'name': 'essdmscdm/centos-build-node:0.8.0',
-        'sh': 'sh',
+    'centos7': [
+        'name': 'essdmscdm/centos7-build-node:3.0.0',
+        'sh': '/usr/bin/scl enable devtoolset-6 -- /bin/bash -e',
         'cmake': 'cmake3'
     ],
-    'centos-gcc6': [
-        'name': 'essdmscdm/centos-gcc6-build-node:0.2.0',
-        'sh': '/usr/bin/scl enable rh-python35 devtoolset-6 -- /bin/bash',
-        'cmake': 'cmake3'
-    ],
-    'fedora': [
-        'name': 'essdmscdm/fedora-build-node:0.4.1',
-        'sh': 'sh',
-        'cmake': 'cmake'
-    ],
-    'ubuntu1604': [
-        'name': 'essdmscdm/ubuntu16.04-build-node:0.0.1',
-        'sh': 'sh',
-        'cmake': 'cmake'
-    ],
-    'ubuntu1710': [
-        'name': 'essdmscdm/ubuntu17.10-build-node:0.0.2',
-        'sh': 'sh',
+    'ubuntu1804': [
+        'name': 'essdmscdm/ubuntu18.04-build-node:1.1.0',
+        'sh': 'bash -e',
         'cmake': 'cmake'
     ]
 ]
