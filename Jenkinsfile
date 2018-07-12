@@ -96,34 +96,32 @@ def docker_tests_coverage(image_key) {
     def custom_sh = images[image_key]['sh']
     abs_dir = pwd()
 
-    dir("${project}/tests") {
-        try {
-            sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
-                cd build
-                make generate_coverage
-            \""""
-            sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
-            dir("${project}/build") {
-                sh "../jenkins/redirect_coverage.sh ./coverage/coverage.xml ${abs_dir}/${project}"
-                step([
-                    $class: 'CoberturaPublisher',
-                    autoUpdateHealth: true,
-                    autoUpdateStability: true,
-                    coberturaReportFile: 'coverage/coverage.xml',
-                    failUnhealthy: false,
-                    failUnstable: false,
-                    maxNumberOfBuilds: 0,
-                    onlyStable: false,
-                    sourceEncoding: 'ASCII',
-                    zoomCoverageChart: false
-                ])
-            }
-        } catch(e) {
-            failure_function(e, 'Run tests and coverage (${container_name(image_key)}) failed')
-        } finally {
-            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
-            junit 'unit_tests_run.xml'
+    try {
+        sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+            cd build
+            make generate_coverage
+        \""""
+        sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
+        dir("${project}/build") {
+            sh "../jenkins/redirect_coverage.sh ./coverage/coverage.xml ${abs_dir}/${project}"
+            step([
+                $class: 'CoberturaPublisher',
+                autoUpdateHealth: true,
+                autoUpdateStability: true,
+                coberturaReportFile: 'coverage/coverage.xml',
+                failUnhealthy: false,
+                failUnstable: false,
+                maxNumberOfBuilds: 0,
+                onlyStable: false,
+                sourceEncoding: 'ASCII',
+                zoomCoverageChart: false
+            ])
         }
+    } catch(e) {
+        failure_function(e, 'Run tests and coverage (${container_name(image_key)}) failed')
+    } finally {
+        sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
+        junit 'unit_tests_run.xml'
     }
 }
 
