@@ -4,7 +4,7 @@ images = [
     'centos7': [
         'name': 'essdmscdm/centos7-build-node:3.0.0',
         'sh': '/usr/bin/scl enable devtoolset-6 -- /bin/bash -e',
-        'cmake': 'cmake3'
+        'cmake': 'cmake3 -DCOV=1'
     ],
     'ubuntu1804': [
         'name': 'essdmscdm/ubuntu18.04-build-node:1.1.0',
@@ -12,6 +12,8 @@ images = [
         'cmake': 'cmake'
     ]
 ]
+
+coverage_node = 'centos7'
 
 base_container_name = "${project}-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
 
@@ -79,6 +81,41 @@ def docker_tests(image_key) {
     }
 }
 
+def docker_tests_coverage(image_key) {
+    def custom_sh = images[image_key]['sh']
+    abs_dir = pwd()
+
+    dir("${project}/tests") {
+        try {
+            sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+                cd build
+                make generate_coverage
+            \""""
+            sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
+            dir("${project}/build") {
+                sh "../jenkins/redirect_coverage.sh ./coverage/coverage.xml ${abs_dir}/${project}"
+                step([
+                    $class: 'CoberturaPublisher',
+                    autoUpdateHealth: true,
+                    autoUpdateStability: true,
+                    coberturaReportFile: 'coverage/coverage.xml',
+                    failUnhealthy: false,
+                    failUnstable: false,
+                    maxNumberOfBuilds: 0,
+                    onlyStable: false,
+                    sourceEncoding: 'ASCII',
+                    zoomCoverageChart: false
+                ])
+            }
+        } catch(e) {
+            failure_function(e, 'Run tests and coverage (${container_name(image_key)}) failed')
+        } finally {
+            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
+            junit 'unit_tests_run.xml'
+        }
+    }
+}
+
 def Object get_container(image_key) {
     def image = docker.image(images[image_key]['name'])
     def container = image.run("\
@@ -96,60 +133,61 @@ def get_pipeline(image_key)
 {
     return {
         stage("${image_key}") {
-            try {
-                def container = get_container(image_key)
-                def custom_sh = images[image_key]['sh']
+            node('docker') {
+                try {
+                    def container = get_container(image_key)
+                    def custom_sh = images[image_key]['sh']
 
-                // Copy sources to container and change owner and group.
-                dir("${project}") {
-                    sh "docker cp code ${container_name(image_key)}:/home/jenkins/${project}"
-                    sh """docker exec --user root ${container_name(image_key)} ${custom_sh} -c \"
-                        chown -R jenkins.jenkins /home/jenkins/${project}
+                    sh "rm -rf ${project}"
+
+                    stage("${image_key}: Checkout") {
+                        sh """docker exec ${container_name} ${custom_sh} -c \"
+                            git clone \
+                                --branch ${env.BRANCH_NAME} \
+                                https://github.com/ess-dmsc/${project}.git
                         \""""
-                }
+                    }  // stage
 
-                try {
-                    docker_dependencies(image_key)
-                } catch (e) {
-                    failure_function(e, "Get dependencies for ${image_key} failed")
-                }
+                    try {
+                        docker_dependencies(image_key)
+                    } catch (e) {
+                        failure_function(e, "Get dependencies for ${image_key} failed")
+                    }
 
-                try {
-                    docker_cmake(image_key)
-                } catch (e) {
-                    failure_function(e, "CMake for ${image_key} failed")
-                }
+                    try {
+                        docker_cmake(image_key)
+                    } catch (e) {
+                        failure_function(e, "CMake for ${image_key} failed")
+                    }
 
-                try {
-                    docker_build(image_key)
-                } catch (e) {
-                    failure_function(e, "Build for ${image_key} failed")
-                }
+                    try {
+                        docker_build(image_key)
+                    } catch (e) {
+                        failure_function(e, "Build for ${image_key} failed")
+                    }
 
-                docker_tests(image_key)
-            } catch(e) {
-                failure_function(e, "Unknown build failure for ${image_key}")
-            } finally {
-                sh "docker stop ${container_name(image_key)}"
-                sh "docker rm -f ${container_name(image_key)}"
+                    if (image_key == coverage_node) {
+                        docker_tests_coverage(image_key)
+                    } else {
+                        docker_tests(image_key)
+                    }
+                } catch(e) {
+                    failure_function(e, "Unknown build failure for ${image_key}")
+                } finally {
+                    sh "docker stop ${container_name(image_key)}"
+                    sh "docker rm -f ${container_name(image_key)}"
+                }
             }
         }
     }
 }
 
-node('docker && dmbuild03.dm.esss.dk') {
-
+node {
     // Delete workspace when build is done
     cleanWs()
 
     stage('Checkout') {
-        dir("${project}/code") {
-            try {
-                scm_vars = checkout scm
-            } catch (e) {
-                failure_function(e, 'Checkout failed')
-            }
-        }
+        scm_vars = checkout scm
     }
 
     def builders = [:]
@@ -160,48 +198,4 @@ node('docker && dmbuild03.dm.esss.dk') {
     }
 
     parallel builders
-}
-
-node ("fedora") {
-    // Delete workspace when build is done
-    cleanWs()
-
-    stage("Coverage") {
-        dir("${project}/code") {
-            try {
-                checkout scm
-            } catch (e) {
-                failure_function(e, 'Generate docs / Checkout failed')
-            }
-        }
-
-        dir("${project}/build") {
-            try {
-                sh "cmake -DCOV=1 ../code"
-            } catch (e) {
-                failure_function(e, 'Generate docs / CMake failed')
-            }
-
-            try {
-                sh "make generate_coverage"
-                junit 'cpp/tests/unit_tests_run.xml'
-                //sh "make memcheck"
-                step([
-                    $class: 'CoberturaPublisher',
-                    autoUpdateHealth: true,
-                    autoUpdateStability: true,
-                    coberturaReportFile: 'coverage/coverage.xml',
-                    failUnhealthy: false,
-                    failUnstable: false,
-                    maxNumberOfBuilds: 0,
-                    onlyStable: false,
-                    sourceEncoding: 'ASCII',
-                    zoomCoverageChart: false
-                ])
-            } catch (e) {
-                failure_function(e, 'Generate docs / generate coverage failed')
-                junit 'cpp/tests/unit_tests_run.xml'
-            }
-        }
-    }
 }
