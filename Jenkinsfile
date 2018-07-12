@@ -1,4 +1,4 @@
-project = "logical_geometry"
+project = "logical-geometry"
 
 images = [
     'centos7': [
@@ -30,6 +30,17 @@ def failure_function(exception_obj, failureMessage) {
 
 def Object container_name(image_key) {
     return "${base_container_name}-${image_key}"
+}
+
+def docker_checkout(image_key) {
+    def custom_sh = images[image_key]['sh']
+    stage("${image_key}: Checkout") {
+        sh """docker exec ${container_name} ${custom_sh} -c \"
+            git clone \
+                --branch ${env.BRANCH_NAME} \
+                https://github.com/ess-dmsc/${project}.git
+        \""""
+    }
 }
 
 def docker_dependencies(image_key) {
@@ -140,13 +151,11 @@ def get_pipeline(image_key)
 
                     sh "rm -rf ${project}"
 
-                    stage("${image_key}: Checkout") {
-                        sh """docker exec ${container_name} ${custom_sh} -c \"
-                            git clone \
-                                --branch ${env.BRANCH_NAME} \
-                                https://github.com/ess-dmsc/${project}.git
-                        \""""
-                    }  // stage
+                    try {
+                        docker_checkout(image_key)
+                    } catch (e) {
+                        failure_function(e, "Checkout for ${image_key} failed")
+                    }
 
                     try {
                         docker_dependencies(image_key)
