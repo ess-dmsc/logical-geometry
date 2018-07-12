@@ -35,7 +35,7 @@ def Object container_name(image_key) {
 def docker_checkout(image_key) {
     def custom_sh = images[image_key]['sh']
     stage("${image_key}: Checkout") {
-        sh """docker exec ${container_name} ${custom_sh} -c \"
+        sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
             git clone \
                 --branch ${env.BRANCH_NAME} \
                 https://github.com/ess-dmsc/${project}.git
