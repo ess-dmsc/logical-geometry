@@ -5,11 +5,6 @@ images = [
         'name': 'essdmscdm/centos7-build-node:3.0.0',
         'sh': '/usr/bin/scl enable devtoolset-6 -- /bin/bash -e',
         'cmake': 'cmake3 -DCOV=1'
-    ],
-    'ubuntu1804': [
-        'name': 'essdmscdm/ubuntu18.04-build-node:1.1.0',
-        'sh': 'bash -e',
-        'cmake': 'cmake'
     ]
 ]
 
@@ -47,13 +42,14 @@ def docker_dependencies(image_key) {
     def conan_remote = "ess-dmsc-local"
     def custom_sh = images[image_key]['sh']
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
+        cd ${project}
         mkdir build
         cd build
         conan --version
         conan remote add \
             --insert 0 \
             ${conan_remote} ${local_conan_server}
-        conan install ../${project} --build=missing
+        conan install .. --build=missing
     \""""
 }
 
@@ -61,16 +57,16 @@ def docker_cmake(image_key) {
     cmake_exec = images[image_key]['cmake']
     def custom_sh = images[image_key]['sh']
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
-        cd build
+        cd ${project}/build
         ${cmake_exec} --version
-        ${cmake_exec} -DCMAKE_BUILD_TYPE=Release ../${project}
+        ${cmake_exec} -DCMAKE_BUILD_TYPE=Release ..
     \""""
 }
 
 def docker_build(image_key) {
     def custom_sh = images[image_key]['sh']
     sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
-        cd build
+        cd ${project}/build
         make --version
         make unit_tests
     \""""
@@ -81,11 +77,11 @@ def docker_tests(image_key) {
     dir("${project}/tests") {
         try {
             sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
-                cd build
+                cd ${project}/build
                 make run_tests
             \""""
         } catch(e) {
-            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
+            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/cpp/tests/unit_tests_run.xml unit_tests_run.xml"
             junit 'unit_tests_run.xml'
             failure_function(e, 'Run tests (${container_name(image_key)}) failed')
         }
@@ -97,8 +93,9 @@ def docker_tests_coverage(image_key) {
     abs_dir = pwd()
 
     try {
+        sh "ls"
         sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
-            cd build
+            cd ${project}/build
             make generate_coverage
         \""""
         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
@@ -120,7 +117,7 @@ def docker_tests_coverage(image_key) {
     } catch(e) {
         failure_function(e, 'Run tests and coverage (${container_name(image_key)}) failed')
     } finally {
-        sh "docker cp ${container_name(image_key)}:/home/jenkins/build/test/unit_tests_run.xml unit_tests_run.xml"
+        sh "docker cp ${container_name(image_key)}:/home/jenkins/${project}/build/cpp/tests/unit_tests_run.xml unit_tests_run.xml"
         junit 'unit_tests_run.xml'
     }
 }
