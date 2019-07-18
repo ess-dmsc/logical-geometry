@@ -66,7 +66,6 @@ builders = pipeline_builder.createBuilders { container ->
             }
             container.sh """
                 cd ${project}/build
-                . ./activate_run.sh
                 cmake --version
                 cmake -DCONAN=MANUAL ${xtra_flags} ..
             """
@@ -105,7 +104,6 @@ builders = pipeline_builder.createBuilders { container ->
             try {
                 container.sh """
                         cd ${project}/build
-                        . ./activate_run.sh
                         make generate_coverage
                     """
                 container.copyFrom("${project}", '.')
@@ -137,7 +135,6 @@ builders = pipeline_builder.createBuilders { container ->
         pipeline_builder.stage("${container.key}: tests") {
             container.sh """
                 cd ${project}/build
-                . ./activate_run.sh
                 make run_tests
             """
         }  // stage
