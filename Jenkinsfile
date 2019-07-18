@@ -81,7 +81,7 @@ def docker_tests(image_key) {
                 make run_tests
             \""""
         } catch(e) {
-            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/cpp/tests/unit_tests_run.xml unit_tests_run.xml"
+            sh "docker cp ${container_name(image_key)}:/home/jenkins/build/tests/unit_tests_run.xml unit_tests_run.xml"
             junit 'unit_tests_run.xml'
             failure_function(e, 'Run tests (${container_name(image_key)}) failed')
         }
@@ -117,7 +117,7 @@ def docker_tests_coverage(image_key) {
     } catch(e) {
         failure_function(e, 'Run tests and coverage (${container_name(image_key)}) failed')
     } finally {
-        sh "docker cp ${container_name(image_key)}:/home/jenkins/${project}/build/cpp/tests/unit_tests_run.xml unit_tests_run.xml"
+        sh "docker cp ${container_name(image_key)}:/home/jenkins/${project}/build/tests/unit_tests_run.xml unit_tests_run.xml"
         junit 'unit_tests_run.xml'
     }
 }
