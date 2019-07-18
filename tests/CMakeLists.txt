@@ -14,11 +14,13 @@ add_executable(
   unit_tests
   ${test_sources}
   ${test_headers}
-  )
+)
+
 target_include_directories(
   unit_tests
   PRIVATE ${GTEST_INCLUDE_DIRS}
-  )
+)
+
 target_link_libraries(
   unit_tests
   ${GTEST_LIBRARIES}
@@ -31,9 +33,12 @@ add_custom_target(run_tests
   DEPENDS unit_tests)
 add_test(NAME "RunGoogleTests" COMMAND run_tests)
 
+set(gcovr_excl_opts " ")
 create_coverage_targets(
-  generate_coverage
+  coverage
   run_tests
   ${PROJECT_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/source
-  ${PROJECT_BINARY_DIR}/coverage)
+  ${PROJECT_BINARY_DIR}/coverage
+  ${gcovr_excl_opts})
+

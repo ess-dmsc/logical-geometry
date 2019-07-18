@@ -104,7 +104,7 @@ builders = pipeline_builder.createBuilders { container ->
             try {
                 container.sh """
                         cd ${project}/build
-                        make generate_coverage
+                        make coverage
                     """
                 container.copyFrom("${project}", '.')
             } catch(e) {
@@ -217,7 +217,7 @@ builders = pipeline_builder.createBuilders { container ->
 //         sh "ls"
 //         sh """docker exec ${container_name(image_key)} ${custom_sh} -c \"
 //             cd ${project}/build
-//             make generate_coverage
+//             make coverage
 //         \""""
 //         sh "docker cp ${container_name(image_key)}:/home/jenkins/${project} ./"
 //         dir("${project}/build") {
