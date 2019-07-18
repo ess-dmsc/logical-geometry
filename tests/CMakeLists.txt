@@ -1,11 +1,6 @@
-if (NOT GTest_FOUND)
-  message(WARNING "GTest not found. No tests will be built.")
-  return()
-endif ()
-
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+  ${CMAKE_CURRENT_SOURCE_DIR}/../source)
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -13,7 +8,7 @@ set(test_sources
   ${dir}/ESSGeometryTest.cpp)
 set(test_headers
   ${dir}/TestBase.h
-  ${dir}/../src/ESSGeometry.h)
+  ${dir}/../source/ESSGeometry.h)
 
 add_executable(
   unit_tests
