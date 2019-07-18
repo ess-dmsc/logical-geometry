@@ -35,5 +35,5 @@ create_coverage_targets(
   generate_coverage
   run_tests
   ${PROJECT_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}/cpp/src
+  ${PROJECT_SOURCE_DIR}/source
   ${PROJECT_BINARY_DIR}/coverage)
