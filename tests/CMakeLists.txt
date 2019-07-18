@@ -23,9 +23,10 @@ target_include_directories(
 
 target_link_libraries(
   unit_tests
-  ${GTEST_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${COVERAGE_LIBRARIES})
+  PRIVATE ${GTEST_LIBRARIES}
+  PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+  PRIVATE ${COVERAGE_LIBRARIES}
+)
 enable_coverage(unit_tests)
 
 add_custom_target(run_tests
