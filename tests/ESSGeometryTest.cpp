@@ -197,6 +197,12 @@ TEST_F(ESSGeometryTest, GetCoordinates2x2x2x2) {
   ASSERT_EQ(geom.p(16), 1);
 }
 
+TEST_F(ESSGeometryTest, Print) {
+  ESSGeometry geom(8, 7, 6, 5);
+  MESSAGE() << geom.to_string() << "\n";
+  EXPECT_EQ(geom.to_string(), "[x:8, y:7, z:6, p:5]");
+}
+
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

@@ -7,6 +7,7 @@
 
 #pragma once
 #include <cinttypes>
+#include <string>
 
 class ESSGeometry {
  public:
@@ -23,7 +24,7 @@ class ESSGeometry {
   }
 
   /** @brief default constructor */
-  ESSGeometry() {}
+  ESSGeometry() = default;
 
   /** @brief set number of x values */
   void nx(uint32_t new_nx) {
@@ -127,6 +128,15 @@ class ESSGeometry {
   inline uint32_t p(uint32_t pixel) const {
     return (pixel - 1) / nxyz_;
   }
+
+  inline std::string to_string() const
+  {
+    return "[x:" + std::to_string(nx_) +
+        ", y:" + std::to_string(ny_) +
+        ", z:" + std::to_string(nz_) +
+        ", p:" + std::to_string(np_) +
+        "]";
+  };
 
  private:
   uint32_t nx_{0}; /**< number of x segments */
