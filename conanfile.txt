@@ -5,9 +5,6 @@ gtest/1.11.0
 cmake
 cmake_find_package
 
-[options]
-gtest:shared=True
-
 [imports]
 bin, *.dll -> ./bin
 lib, *.dll -> ./bin
