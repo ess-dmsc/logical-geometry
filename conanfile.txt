@@ -1,11 +1,9 @@
 [requires]
-gtest/3121b20-dm3@ess-dmsc/stable
+gtest/1.11.0
 
 [generators]
 cmake
-
-[options]
-gtest:shared=True
+cmake_find_package
 
 [imports]
 bin, *.dll -> ./bin

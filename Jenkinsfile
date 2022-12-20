@@ -4,7 +4,7 @@ import ecdcpipeline.PipelineBuilder
 
 project = "logical-geometry"
 coverage_on = "centos7"
-clangformat_os = "debian9"
+clangformat_os = "debian11"
 
 // Set number of old builds to keep.
  properties([[
@@ -19,9 +19,9 @@ clangformat_os = "debian9"
  ]]);
 
 container_build_nodes = [
-  'centos7': ContainerBuildNode.getDefaultContainerBuildNode('centos7'),
-  'debian9': ContainerBuildNode.getDefaultContainerBuildNode('debian9'),
-  'ubuntu1804': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu1804')
+  'centos7': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc11'),
+  'debian11': ContainerBuildNode.getDefaultContainerBuildNode('debian11'),
+  'ubuntu2204': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2204')
 ]
 
 def failure_function(exception_obj, failureMessage) {
@@ -94,7 +94,6 @@ builders = pipeline_builder.createBuilders { container ->
                 failure_function(e, "Cppcheck step for (${container.key}) failed")
             }
         }  // stage
-        step([$class: 'WarningsPublisher', parserConfigurations: [[parserName: 'Cppcheck Parser', pattern: "cppcheck.txt"]]])
     }
 
     if (container.key == coverage_on) {
