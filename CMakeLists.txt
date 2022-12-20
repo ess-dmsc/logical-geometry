@@ -44,7 +44,7 @@ include(${EXTRA_MODULES_DIR}/CompilerConfig.cmake)
 # Testing-related stuff
 #=============================================================================
 enable_testing()
-find_package(GTestFix REQUIRED)
+find_package(GTest REQUIRED)
 include(${EXTRA_MODULES_DIR}/CoverageReports.cmake)
 
 add_subdirectory(tests)
