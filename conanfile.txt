@@ -3,6 +3,7 @@ gtest/1.11.0
 
 [generators]
 cmake
+cmake_find_package
 
 [options]
 gtest:shared=True
