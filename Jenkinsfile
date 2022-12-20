@@ -94,7 +94,6 @@ builders = pipeline_builder.createBuilders { container ->
                 failure_function(e, "Cppcheck step for (${container.key}) failed")
             }
         }  // stage
-        step([$class: 'WarningsPublisher', parserConfigurations: [[parserName: 'Cppcheck Parser', pattern: "cppcheck.txt"]]])
     }
 
     if (container.key == coverage_on) {
